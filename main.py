@@ -1,0 +1,115 @@
+import json
+from typing import Generator, Callable
+from random import randint, uniform
+
+from faker import Faker
+
+from conf import MODEL, TITTLE_STRING_LENGTH, CURRENT_YEAR
+
+fake = Faker()  # faker generator
+
+
+def main(pk: int = 1):
+    """
+    :param pk: порядковый номер книги
+    """
+    gen = book_gen(pk)
+    books = (next(gen) for _ in range(100))
+    with open("books_new.txt", "wt", encoding="utf-8") as file:
+        file.write(json.dumps(list(books), ensure_ascii=True, indent=4))
+
+
+def book_gen(primary_key: int) -> Generator:
+    """
+    :param primary_key: порядковый номер книги
+    :return: выражение генератор, возвращающий список словарей
+    """
+    while True:
+        yield {
+            "model": MODEL,
+            "pk": primary_key,
+            "fields": {
+                "tittle": get_tittle(primary_key),
+                "year": get_year(),
+                "pages": count_pages(),
+                "isbn13": get_isbn(),
+                "rating": get_rating(),
+                "author": get_authors(),
+                "price": get_price(),
+            }
+        }
+        primary_key += 1
+
+
+def get_year(start_year=1950, end_year=CURRENT_YEAR) -> int:
+    """
+    :param start_year: год начала публикации клиг
+    :param end_year: текущий год
+    :return: произвольный год
+    """
+    return randint(start_year, end_year)
+
+
+def books_filter(length: int) -> Callable:
+    """
+    Фабрика декораторов
+    """
+    def decorator(f):
+        def func(*a):
+            book_name = f(*a)
+            if len(book_name) > length:
+                raise ValueError()
+            return book_name
+        return func
+    return decorator
+
+
+@books_filter(TITTLE_STRING_LENGTH)
+def get_tittle():
+    try:
+        with open("books.txt", encoding="utf-8") as file:
+            counter = 0
+            for _ in file:
+                counter += 1
+            return file.readline(randint(0, counter))
+    except OSError:
+        raise OSError("Файл с книгами недоступен")
+
+
+def count_pages(lowest_book_size=100, highest_book_size=500) -> int:
+    """
+    :param lowest_book_size:
+    :param highest_book_size:
+    :return:
+    """
+    return randint(lowest_book_size, highest_book_size)
+
+
+def get_isbn() -> str:
+    return fake.isbn13()
+
+
+def get_rating(lowest_rating: float = 0.0, highest_rating: float = 5.0):
+    """
+    :param lowest_rating:
+    :param highest_rating:
+    :return:
+    """
+    return uniform(lowest_rating, highest_rating)
+
+
+def get_price(start: float = 1.0, end: float = 100.0) -> float:
+    """
+    :param start:
+    :param end:
+    :return:
+    """
+    return uniform(start, end)
+
+
+def get_authors() -> list[str]:
+    return [fake.name() for _ in range(randint(1, 3))]
+
+
+if __name__ == "__main__":
+    print(main())
