@@ -1,22 +1,28 @@
 import json
-from typing import Generator, Callable
-from random import randint, uniform
+from typing import Generator
+from random import randint, choice, uniform
 
 from faker import Faker
 
+from decorators import *
+
 from conf import MODEL, TITTLE_STRING_LENGTH, CURRENT_YEAR
 
+
 fake = Faker()  # faker generator
+cached_lines: list = []
 
 
+@exec_time
 def main(pk: int = 1):
     """
     :param pk: порядковый номер книги
     """
+    reset_cache()
     gen = book_gen(pk)
     books = (next(gen) for _ in range(100))
     with open("books_new.txt", "wt", encoding="utf-8") as file:
-        file.write(json.dumps(list(books), ensure_ascii=True, indent=4))
+        file.write(json.dumps(list(books), ensure_ascii=False, indent=4))
 
 
 def book_gen(primary_key: int) -> Generator:
@@ -29,7 +35,7 @@ def book_gen(primary_key: int) -> Generator:
             "model": MODEL,
             "pk": primary_key,
             "fields": {
-                "tittle": get_tittle(primary_key),
+                "tittle": get_tittle(cached_lines),
                 "year": get_year(),
                 "pages": count_pages(),
                 "isbn13": get_isbn(),
@@ -41,6 +47,11 @@ def book_gen(primary_key: int) -> Generator:
         primary_key += 1
 
 
+def reset_cache():
+    global cached_lines
+    cached_lines = []
+
+
 def get_year(start_year=1950, end_year=CURRENT_YEAR) -> int:
     """
     :param start_year: год начала публикации клиг
@@ -50,30 +61,13 @@ def get_year(start_year=1950, end_year=CURRENT_YEAR) -> int:
     return randint(start_year, end_year)
 
 
-def books_filter(length: int) -> Callable:
-    """
-    Фабрика декораторов
-    """
-    def decorator(f):
-        def func(*a):
-            book_name = f(*a)
-            if len(book_name) > length:
-                raise ValueError()
-            return book_name
-        return func
-    return decorator
-
-
+@count_lines
 @books_filter(TITTLE_STRING_LENGTH)
-def get_tittle():
-    try:
-        with open("books.txt", encoding="utf-8") as file:
-            counter = 0
-            for _ in file:
-                counter += 1
-            return file.readline(randint(0, counter))
-    except OSError:
-        raise OSError("Файл с книгами недоступен")
+def get_tittle(available_lines: list[int]):
+    with open("books.txt", encoding="utf-8") as file:
+        ch = choice(available_lines)
+        output = tuple((s.strip() for i, s in enumerate(file) if i == ch))[0]
+        return output
 
 
 def count_pages(lowest_book_size=100, highest_book_size=500) -> int:
@@ -112,4 +106,4 @@ def get_authors() -> list[str]:
 
 
 if __name__ == "__main__":
-    print(main())
+    main()
