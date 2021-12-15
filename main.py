@@ -18,7 +18,6 @@ def main(pk: int = 1):
     """
     :param pk: порядковый номер книги
     """
-    reset_cache()
     gen = book_gen(pk)
     books = (next(gen) for _ in range(100))
     with open("books_new.txt", "wt", encoding="utf-8") as file:
@@ -35,7 +34,7 @@ def book_gen(primary_key: int) -> Generator:
             "model": MODEL,
             "pk": primary_key,
             "fields": {
-                "tittle": get_tittle(cached_lines),
+                "tittle": get_tittle(),
                 "year": get_year(),
                 "pages": count_pages(),
                 "isbn13": get_isbn(),
@@ -45,11 +44,6 @@ def book_gen(primary_key: int) -> Generator:
             }
         }
         primary_key += 1
-
-
-def reset_cache():
-    global cached_lines
-    cached_lines = []
 
 
 def get_year(start_year=1950, end_year=CURRENT_YEAR) -> int:
@@ -67,6 +61,7 @@ def get_tittle(available_lines: list[int]):
     with open("books.txt", encoding="utf-8") as file:
         ch = choice(available_lines)
         output = tuple((s.strip() for i, s in enumerate(file) if i == ch))[0]
+        available_lines.remove(ch)
         return output
 
 
