@@ -1,4 +1,5 @@
 import time
+import sys
 import traceback
 from typing import Callable
 
@@ -51,6 +52,7 @@ def cache_lines(f):
                 raise ValueError("Файл списка книг пуст")
             items = value.copy()
             cached_lines[0], cached_lines[1] = value, items
+            print(f"Ссылки на валидные строки в файле: {sys.getsizeof(value) // 1000}кб")
         else:
             items = cached_lines[1]
             if not items:
