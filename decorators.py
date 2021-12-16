@@ -47,6 +47,8 @@ def cache_lines(f):
                     value = [i for i, s in enumerate(file) if s[0] != "\n"]
             except OSError:
                 traceback.print_exc()
+            if not value:
+                raise ValueError("Файл списка книг пуст")
             items = value.copy()
             cached_lines[0], cached_lines[1] = value, items
         else:
