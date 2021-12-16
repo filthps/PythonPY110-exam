@@ -61,7 +61,7 @@ def get_tittle(available_lines: list[int]):
     ch = choice(available_lines)
     try:
         with open("books.txt", encoding="utf-8") as file:
-            output = list((s for i, s in enumerate(file) if i == ch))[0]
+            output = list((s.strip() for i, s in enumerate(file) if i == ch))[0]
     except OSError:
         traceback.print_exc()
     available_lines.remove(ch)
