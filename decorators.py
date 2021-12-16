@@ -1,8 +1,6 @@
 import time
+import traceback
 from typing import Callable
-
-
-lines = []
 
 
 def exec_time(f):
@@ -13,7 +11,7 @@ def exec_time(f):
     def func(*a):
         time_start = time.time()
         f(*a)
-        print(time.time() - time_start)
+        print(f"{round((time.time() - time_start) * 1000)}ms")
     return func
 
 
@@ -35,24 +33,26 @@ def books_filter(length: int) -> Callable:
     return decorator
 
 
-def count_lines(func):
+def cache_lines(f):
     """
-    Декоратор.
-    Кэшировать на 1 запуск функции main
-    список lines, содержащий индексы
-    "правильных", не пустых строк.
-    Возбудить ValueError, если файл пуст.
+    Декоратор сохраняющий в cached_lines индексы валидных строк
     """
-    def wrap(*a):
-        global lines
-        if not lines:
+    cached_lines: list = [[], []]
+
+    def wrap():
+        nonlocal cached_lines
+        if not cached_lines[0]:
             try:
                 with open("books.txt", encoding="utf-8") as file:
-                    lines = [i for i, s in enumerate(file) if s[0] != "\n"]
-                    if not lines:
-                        raise ValueError("Файл с книгами пуст")
+                    value = [i for i, s in enumerate(file) if s[0] != "\n"]
             except OSError:
-                raise OSError("Файл с книгами недоступен")
-        tittle = func(lines)
-        return tittle
+                traceback.print_exc()
+            items = value.copy()
+            cached_lines[0], cached_lines[1] = value, items
+        else:
+            items = cached_lines[1]
+            if not items:
+                items = cached_lines[0].copy()
+                cached_lines[1] = items
+        return f(items)
     return wrap
