@@ -13,7 +13,7 @@ def exec_time(f):
     def func(*a):
         time_start = time.time()
         f(*a)
-        print(time.time() - time_start)
+        print(f"{round((time.time() - time_start) * 1000)}ms")
     return func
 
 
@@ -43,7 +43,7 @@ def count_lines(func):
     "правильных", не пустых строк.
     Возбудить ValueError, если файл пуст.
     """
-    def wrap(*a):
+    def wrap():
         global lines
         if not lines:
             try:
