@@ -1,5 +1,4 @@
 import json
-import traceback
 from typing import Generator
 from random import randint, choice, uniform
 
@@ -13,6 +12,7 @@ from conf import MODEL, TITTLE_STRING_LENGTH, CURRENT_YEAR
 fake = Faker()  # faker generator
 
 
+@lock_books_file
 @exec_time
 def main(pk: int = 1):
     """
@@ -20,7 +20,7 @@ def main(pk: int = 1):
     """
     gen = book_gen(pk)
     books = (next(gen) for _ in range(100))
-    with open("books_new.txt", "wt", encoding="utf-8") as file:
+    with open("books_new.txt", "w", encoding="utf-8") as file:
         file.write(json.dumps(list(books), ensure_ascii=False, indent=4))
 
 
@@ -59,11 +59,8 @@ def get_year(start_year=1950, end_year=CURRENT_YEAR) -> int:
 @books_filter(TITTLE_STRING_LENGTH)
 def get_tittle(available_lines: list[int]):
     ch = choice(available_lines)
-    try:
-        with open("books.txt", encoding="utf-8") as file:
-            output = list((s.strip() for i, s in enumerate(file) if i == ch))[0]
-    except OSError:
-        traceback.print_exc()
+    with open("books.txt", encoding="utf-8") as file:
+        output = list((s.strip() for i, s in enumerate(file) if i == ch))[0]
     available_lines.remove(ch)
     return output
 
