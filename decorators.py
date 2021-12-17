@@ -3,10 +3,12 @@ import sys
 from typing import Callable
 
 
-def exec_time(f):
+def exec_time(f: Callable) -> Callable:
     """
-    Декоратор.
-    Подсчёт времени выполнения декорируемой функции.
+    Подсчёт времени выполнения декорируемой функции
+
+    :param f: декорируемая функция
+    :return: функция - обёртка
     """
     def func(*a):
         time_start = time.time()
@@ -17,11 +19,13 @@ def exec_time(f):
 
 def books_filter(length: int) -> Callable:
     """
+    Фабрика декораторов
+
     Возбудить ValueError, если длина названия книги больше,
     чем задано параметром
 
-    :param length: Допустимая длина названия книги
-    :return: Декоратор
+    :param length: допустимая длина символов в названии книги
+    :return: функция - декоратор
     """
     def decorator(f):
         def func(*args):
@@ -33,11 +37,14 @@ def books_filter(length: int) -> Callable:
     return decorator
 
 
-def cache_lines(f):
+def cache_lines(f: Callable) -> Callable:
     """
-    Декоратор сохраняющий в cached_lines индексы валидных строк
+    Хранить в cached_lines индексы валидных строк
+
+    :param f: декорируемая функция
+    :return: функция - обёртка
     """
-    cached_lines: list = [[], []]
+    cached_lines: list[list[int], list[int]] = [[], []]
 
     def wrap():
         nonlocal cached_lines
@@ -58,11 +65,13 @@ def cache_lines(f):
     return wrap
 
 
-def lock_books_file(func):
+def lock_books_file(func: Callable) -> Callable:
     """
-    Декоратор.
     Блокировка файла books.txt на время работы главной функции
+    :param func: декорируемая функция
+    :return: функция - обёртка
     """
+
     def wrapper(*args):
         file = open("books.txt", "a")
         result = func(*args)
