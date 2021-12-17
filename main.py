@@ -14,8 +14,10 @@ fake = Faker()  # faker generator
 
 @lock_books_file
 @exec_time
-def main(pk: int = 1):
+def main(pk: int = 1) -> None:
     """
+    Главная функция
+
     :param pk: порядковый номер книги
     """
     gen = book_gen(pk)
@@ -46,8 +48,10 @@ def book_gen(primary_key: int) -> Generator:
         primary_key += 1
 
 
-def get_year(start_year=1950, end_year=CURRENT_YEAR) -> int:
+def get_year(start_year: int = 1950, end_year: int = CURRENT_YEAR) -> int:
     """
+    Сгенерировать при помощи randint число - дату публикации книги
+
     :param start_year: год начала публикации клиг
     :param end_year: текущий год
     :return: произвольный год
@@ -58,6 +62,12 @@ def get_year(start_year=1950, end_year=CURRENT_YEAR) -> int:
 @cache_lines
 @books_filter(TITTLE_STRING_LENGTH)
 def get_tittle(available_lines: list[int]):
+    """
+    Прочитать файл books.txt и вернуть случайную строку
+
+    :param available_lines: Список с индексами валидных строк из файла books.txt
+    :return: случайная строка, отобранная из списка валидных
+    """
     ch = choice(available_lines)
     with open("books.txt", encoding="utf-8") as file:
         output = list((s.strip() for i, s in enumerate(file) if i == ch))[0]
@@ -67,36 +77,46 @@ def get_tittle(available_lines: list[int]):
 
 def count_pages(lowest_book_size=100, highest_book_size=500) -> int:
     """
-    :param lowest_book_size:
-    :param highest_book_size:
-    :return:
+    Сгенерировать при помощи randint число - количество страниц в книге
+
+    :return: целое случайное число в диапазоне от 100 до 500
     """
     return randint(lowest_book_size, highest_book_size)
 
 
 def get_isbn() -> str:
+    """
+    Сгенерировать при помощи модуля Faker номер isbn
+
+    :return: строка isbn
+    """
     return fake.isbn13()
 
 
-def get_rating(lowest_rating: float = 0.0, highest_rating: float = 5.0):
+def get_rating(lowest_rating: float = 0.0, highest_rating: float = 5.0) -> float:
     """
-    :param lowest_rating:
-    :param highest_rating:
-    :return:
+    Сгенерировать при помощи uniform рейтинг книги
+
+    :return: случайное число float в диапазоне от 0.0 до 5.0
     """
     return uniform(lowest_rating, highest_rating)
 
 
 def get_price(start: float = 1.0, end: float = 100.0) -> float:
     """
-    :param start:
-    :param end:
-    :return:
+    Сгенерировать при помощи uniform цену книги
+
+    :return: число float от 1.0 до 100.0
     """
     return uniform(start, end)
 
 
 def get_authors() -> list[str]:
+    """
+    Сгенерировать при помощи модуля Faker имена авторов книг
+
+    :return: список строк с именами авторов, авторов в списке от 1 до 3
+    """
     return [fake.name() for _ in range(randint(1, 3))]
 
 
