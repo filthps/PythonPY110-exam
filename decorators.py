@@ -12,8 +12,9 @@ def exec_time(f: Callable) -> Callable:
     """
     def func(*a):
         time_start = time.time()
-        f(*a)
+        val = f(*a)
         print(f"{round((time.time() - time_start) * 1000)}ms")
+        return val
     return func
 
 
