@@ -1,12 +1,12 @@
 import json
 from typing import Generator
+from datetime import datetime
 from random import randint, choice, uniform
 
 from faker import Faker
 
 from decorators import *
-
-from conf import MODEL, TITTLE_STRING_LENGTH, CURRENT_YEAR
+from conf import MODEL, TITTLE_STRING_LENGTH
 
 
 fake = Faker()  # faker generator
@@ -21,12 +21,12 @@ def main(pk: int = 1) -> None:
     :param pk: порядковый номер книги
     """
     gen = book_gen(pk)
-    books = (next(gen) for _ in range(100))
+    books = [next(gen) for _ in range(100)]
     with open("books_new.txt", "w", encoding="utf-8") as file:
-        file.write(json.dumps(list(books), ensure_ascii=False, indent=4))
+        file.write(json.dumps(books, ensure_ascii=False, indent=4))
 
 
-def book_gen(primary_key: int) -> Generator:
+def book_gen(primary_key: int) -> Generator[dict]:
     """
     :param primary_key: порядковый номер книги
     :return: выражение генератор, возвращающий список словарей
@@ -48,7 +48,7 @@ def book_gen(primary_key: int) -> Generator:
         primary_key += 1
 
 
-def get_year(start_year: int = 1950, end_year: int = CURRENT_YEAR) -> int:
+def get_year(start_year: int = 1950, end_year: int = datetime.now().year) -> int:
     """
     Сгенерировать при помощи randint число - дату публикации книги
 
@@ -75,7 +75,7 @@ def get_tittle(available_lines: list[int]):
     return output
 
 
-def count_pages(lowest_book_size=100, highest_book_size=500) -> int:
+def count_pages(lowest_book_size: int = 100, highest_book_size: int = 500) -> int:
     """
     Сгенерировать при помощи randint число - количество страниц в книге
 
