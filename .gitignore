@@ -151,4 +151,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 /books_new.txt
+<<<<<<< HEAD
 
+=======
+>>>>>>> d626756245447ef3cf4483df67d8de3c148b6088
